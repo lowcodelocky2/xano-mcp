@@ -19,7 +19,7 @@ A Model Context Protocol (MCP) server for interacting with Xano's metadata API. 
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/yourusername/xano-mcp.git
+git clone https://github.com/lowcodelocky2/xano-mcp.git
 cd xano-mcp
 ```
 
