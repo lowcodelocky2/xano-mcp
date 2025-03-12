@@ -181,36 +181,60 @@ server.tool(
   "get-table-schema",
   "Browse the schema of a table",
   {
-    table_id: z.string().describe("ID of the table to get schema from")
+    table_id: z.string().describe("ID of the table to get schema from"),
+    format: z.enum(["markdown", "json"]).default("markdown").describe("Output format: 'markdown' for readable documentation or 'json' for complete schema")
   },
-  async ({ table_id }) => {
-    console.error(`[Tool] Executing get-table-schema for table ID: ${table_id}`);
+  async ({ table_id, format }) => {
+    console.error(`[Tool] Executing get-table-schema for table ID: ${table_id} with format: ${format}`);
     try {
       const schema = await makeXanoRequest(`/workspace/${XANO_WORKSPACE}/table/${table_id}/schema`);
       
-      // Format schema into readable structure
-      const formattedContent = `# Schema for Table ID: ${table_id}\n\n` +
-        (Array.isArray(schema) ? 
-          schema.map(field => {
-            return `## ${field.name} (${field.type})\n` +
-              `**Required**: ${field.required ? 'Yes' : 'No'}\n` +
-              `**Nullable**: ${field.nullable ? 'Yes' : 'No'}\n` +
-              `**Access**: ${field.access || 'public'}\n` +
-              `${field.description ? `**Description**: ${field.description}\n` : ''}` +
-              `${field.default !== undefined ? `**Default**: ${field.default}\n` : ''}`;
-          }).join('\n\n') : 
-          `Error: Unexpected schema format: ${JSON.stringify(schema)}`
-        );
+      if (format === "json") {
+        // Return the complete JSON schema
+        return {
+          content: [
+            {
+              type: "text",
+              text: `# Table Schema (Full JSON)\n\n\`\`\`json\n${JSON.stringify(schema, null, 2)}\n\`\`\``
+            }
+          ]
+        };
+      } else {
+        // Format schema into readable structure
+        const formattedContent = `# Schema for Table ID: ${table_id}\n\n` +
+          (Array.isArray(schema) ? 
+            schema.map(field => {
+              let content = `## ${field.name} (${field.type})\n`;
+              content += `**Required**: ${field.required ? 'Yes' : 'No'}\n`;
+              content += `**Nullable**: ${field.nullable ? 'Yes' : 'No'}\n`;
+              content += `**Access**: ${field.access || 'public'}\n`;
+              content += `**Style**: ${field.style || 'single'}\n`;
+              if (field.description) content += `**Description**: ${field.description}\n`;
+              if (field.default !== undefined) content += `**Default**: ${field.default}\n`;
+              if (field.config && Object.keys(field.config).length > 0) {
+                content += `**Config**:\n\`\`\`json\n${JSON.stringify(field.config, null, 2)}\n\`\`\`\n`;
+              }
+              if (field.validators && Object.keys(field.validators).length > 0) {
+                content += `**Validators**:\n\`\`\`json\n${JSON.stringify(field.validators, null, 2)}\n\`\`\`\n`;
+              }
+              if (field.children && field.children.length > 0) {
+                content += `**Children**:\n\`\`\`json\n${JSON.stringify(field.children, null, 2)}\n\`\`\`\n`;
+              }
+              return content;
+            }).join('\n\n') : 
+            `Error: Unexpected schema format: ${JSON.stringify(schema)}`
+          );
 
-      console.error(`[Tool] Successfully retrieved schema for table ID: ${table_id}`);
-      return {
-        content: [
-          {
-            type: "text",
-            text: formattedContent
-          }
-        ]
-      };
+        console.error(`[Tool] Successfully retrieved schema for table ID: ${table_id}`);
+        return {
+          content: [
+            {
+              type: "text",
+              text: formattedContent
+            }
+          ]
+        };
+      }
     } catch (error) {
       console.error(`[Error] Failed to get table schema: ${error instanceof Error ? error.message : String(error)}`);
       return {
@@ -239,7 +263,7 @@ server.tool(
         "attachment", "audio", "bool", "date", "decimal", "email", "enum", 
         "geo_linestring", "geo_multilinestring", "geo_multipoint", "geo_multipolygon", 
         "geo_point", "geo_polygon", "image", "int", "json", "object", "password", 
-        "tableref", "tablerefuuid", "text", "timestamp", "uuid", "vector", "video"
+        "tablerefuuid", "text", "timestamp", "uuid", "vector", "video"
       ]).describe("Type of the schema element"),
       description: z.string().optional().describe("Description of the schema element"),
       nullable: z.boolean().optional().default(false).describe("Whether the field can be null"),
@@ -259,8 +283,21 @@ server.tool(
         scale: z.number().optional(),
         trim: z.boolean().optional()
       }).optional().describe("Validation rules for the field"),
-      children: z.array(z.any()).optional().describe("Nested fields for object types")
-    })).optional().describe("Schema configuration for the table")
+      children: z.array(z.any()).optional().describe("Nested fields for object types"),
+      tableref_id: z.string().optional().describe("ID of the referenced table (only valid when type is 'int')"),
+      values: z.array(z.string()).optional().describe("Array of allowed values (only for enum type)")
+    })).optional().describe(`Schema configuration for the table. For foreign key relationships, use type 'int' with tableref_id. Example:
+    {
+      "name": "contact_id",
+      "type": "int",
+      "description": "Reference to contact table",
+      "nullable": false,
+      "required": false,
+      "access": "public",
+      "style": "single",
+      "default": "0",
+      "tableref_id": "100"  // ID of the table to reference
+    }`)
   },
   async ({ name, description, schema }) => {
     console.error(`[Tool] Executing add-table for table: ${name}`);
@@ -275,14 +312,24 @@ server.tool(
       const tableId = createTableResponse.id;
       console.error(`[Tool] Table created with ID: ${tableId}`);
       
-      // Step 2: If schema is provided, add it to the table
+      // Step 2: If schema is provided, process and add it to the table
       if (schema && schema.length > 0) {
         try {
-          // Update the entire schema at once
+          // Process schema fields to handle relationships
+          const processedSchema = schema.map(field => {
+            // Validate relationship fields
+            if (field.tableref_id && field.type !== "int") {
+              throw new Error(`Field "${field.name}" has tableref_id but type is not "int". Foreign key fields must be of type "int".`);
+            }
+            
+            return field;
+          });
+          
+          // Update the schema with processed fields
           await makeXanoRequest(
             `/workspace/${XANO_WORKSPACE}/table/${tableId}/schema`, 
             'PUT', 
-            { schema }
+            { schema: processedSchema }
           );
           console.error(`[Tool] Schema successfully added to table ID: ${tableId}`);
         } catch (schemaError) {

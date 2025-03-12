@@ -13,7 +13,7 @@ A Model Context Protocol (MCP) server for interacting with Xano's metadata API. 
 - Node.js (v16 or higher)
 - npm or another Node.js package manager
 - A Xano account with API access
-- Cursor (for using with the AI assistant)
+- Cursor, Claude Desktop, Cline or another MCP client.
 
 ## Installation
 
