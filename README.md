@@ -45,7 +45,7 @@ npm run build
 Follow this guide - https://modelcontextprotocol.io/quickstart/user
 
 Update your config with: 
-
+```json
 {
   "mcpServers": {
     "xano": {
@@ -56,7 +56,7 @@ Update your config with:
     }
   }
 } 
-
+```
 
 Replace `/path/to/xano-mcp` with the absolute path to your project directory.
 
