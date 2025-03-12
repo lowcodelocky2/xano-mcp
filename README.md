@@ -9,6 +9,8 @@ A Model Context Protocol (MCP) server for interacting with Xano's metadata API. 
 - **Database Management**: Complete toolset for interacting with your Xano database structure
 - **Swagger Spec**: Extract your API group api details in either JSON or Markdown (reduced token) format
 
+Note this is an early-stage with feedback / requests welcomed.
+
 ## Prerequisites
 
 - Node.js (v16 or higher)
@@ -161,8 +163,9 @@ server.tool(
 ### Verification
 After making these changes:
 1. Save the file
-2. Restart your MCP server
-3. The delete-table tool should now be available in your toolset
+2. Run a new build `npm run build'
+3. Restart your MCP client (Claude / Cursor)
+4. The delete-table tool should now be available in your toolset
 
 ### Safety Note
 The delete-table tool permanently removes tables from your Xano workspace. Make sure you have appropriate backups before using this functionality. 
