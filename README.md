@@ -29,11 +29,7 @@ cd xano-mcp
 npm install
 ```
 
-3. Configure environment variables:
-   - Copy `.env.example` to `.env`:
-     ```bash
-     cp .env.example .env
-     ```
+3. Configure your Xano credentials:
    - Edit `index.ts` and set your Xano credentials:
      - `XANO_API_KEY`: Your Xano API key
      - `XANO_WORKSPACE`: Your Xano workspace ID
