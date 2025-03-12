@@ -42,6 +42,7 @@ interface XanoApiGroup {
   id: string;
   name: string;
   description?: string;
+  docs?: string;
   created_at: string;
   updated_at: string;
   guid?: string;
@@ -670,14 +671,22 @@ server.tool(
   "Create a new API group in the Xano workspace",
   {
     name: z.string().describe("Name of the API group"),
-    description: z.string().optional().describe("Description of the API group")
+    description: z.string().describe("Description of the API group"),
+    swagger: z.boolean().describe("Whether to enable Swagger documentation"),
+    docs: z.string().optional().describe("Documentation for the API group"),
+    tag: z.array(z.string()).optional().nullable().describe("Tags to associate with the API group"),
+    branch: z.string().optional().describe("Branch name for the API group")
   },
-  async ({ name, description }) => {
+  async ({ name, description, swagger, docs, tag, branch }) => {
     console.error(`[Tool] Executing create-api-group for name: ${name}`);
     try {
       const requestBody = {
         name,
-        ...(description !== undefined && { description })
+        description,
+        swagger,
+        ...(docs !== undefined && { docs }),
+        ...(tag !== undefined && { tag }),
+        ...(branch !== undefined && { branch })
       };
       
       const response = await makeXanoRequest<XanoApiGroup>(
@@ -691,10 +700,15 @@ server.tool(
       const formattedContent = `# API Group Created\n\n` +
         `**Name**: ${response.name}\n` +
         `**ID**: ${response.id}\n` +
-        `${response.description ? `**Description**: ${response.description}\n` : ''}` +
+        `**Description**: ${response.description || 'No description'}\n` +
+        `${response.docs ? `**Documentation**: ${response.docs}\n` : ''}` +
+        `**Swagger Documentation**: ${response.swagger ? 'Enabled' : 'Disabled'}\n` +
         `**Created**: ${new Date(response.created_at).toLocaleString()}\n` +
         `**Updated**: ${new Date(response.updated_at).toLocaleString()}\n` +
-        `${response.guid ? `**GUID**: ${response.guid}\n` : ''}`;
+        `${response.guid ? `**GUID**: ${response.guid}\n` : ''}` +
+        `${response.canonical ? `**Canonical**: ${response.canonical}\n` : ''}` +
+        `${response.branch ? `**Branch**: ${response.branch}\n` : ''}` +
+        `${response.tag && response.tag.length > 0 ? `**Tags**: ${response.tag.join(', ')}\n` : ''}`;
       
       return {
         content: [
