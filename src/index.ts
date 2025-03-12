@@ -7,9 +7,9 @@ import {
 import { z } from "zod";
 
 // Configuration - HARDCODED VALUES - Replace with actual values
-const XANO_API_KEY = "eyJhbGciOiJSUzI1NiJ9.eyJ4YW5vIjp7ImRibyI6Im1hc3Rlcjp1c2VyIiwiaWQiOjIyNzMsImFjY2Vzc190b2tlbiI6eyJrZXlpZCI6Ijc3YzgwMjFmLWU1N2EtNDJlMS1iNGZjLTVhNWYxYTUxZjVmOSIsInNjb3BlIjp7IndvcmtzcGFjZTphZGRvbiI6MTUsIndvcmtzcGFjZTphcGkiOjE1LCJ3b3Jrc3BhY2U6Y29udGVudCI6MTUsIndvcmtzcGFjZTpkYXRhYmFzZSI6MTUsIndvcmtzcGFjZTpkYXRhc291cmNlOmxpdmUiOjE1LCJ3b3Jrc3BhY2U6ZmlsZSI6MTUsIndvcmtzcGFjZTpmdW5jdGlvbiI6MTUsIndvcmtzcGFjZTpyZXF1ZXN0aGlzdG9yeSI6MTUsIndvcmtzcGFjZTp0YXNrIjoxNX19fSwiaWF0IjoxNzM4MzY0NDcyLCJuYmYiOjE3MzgzNjQ0NzIsImF1ZCI6Inhhbm86bWV0YSJ9.vouISGScMloQr0iBJl8NYVYolngHUM2gd6vbJPHmet1zwb3IueDOFeX5jN2G_t3LjJEYb9Fm965Ee6uSYMtGBWhoZq_sDeRyiJIDOjW1hHp4lqEDjTtd7owxAzTyn3sULsMvjkPn-HJzu3y26KezuMJF32zpj9kVqosi4OuQoC9UTpRlPVZwkrekgamksMo8vG8IdhYXDSLNlT45QHbLjhNAd3R-CgjrUSh4DPF3P5fhsoi-W4uY3GC0vuLyjBp3W3yNILlEN2kk2q8gOeJSpndxQnhU_nYPb-yWizDWSE0VBDNRtJbaq8E8mnWKE_AbOInupxW-jtd7Cz8ydSLiCUmB6cxfZPIoW_Vd3kKe4IFkdCttw1Yoe90pDuXOs3a-yxarPcdQ9BYk5Lng7QhXTolxvll-utiYWZaNYvlv8opiLU2MgCO2lUV_hsHynqRnhG4HLJGvFUrjnMd1_gZ1y_SbXqD3ldmEyfVnHLixt2OWtx0ACGXm9Kxf8gYnfc_c8o6jOciDj74J87ascvdSE0ByHqeszYBYzRBGKm5Hic37EOp2HucibO4owRTluVt2y31ILjP1UEjuOOKGV9j9JO_bO5KQxkq2V4OpBggbnGsSwjezpG5L77bpYERoTOPaVVSiPK5GG12tlva6OzFt6Aa9LxuQw-37U-wA1wgH6uQ"; // REPLACE WITH YOUR ACTUAL API KEY
-const XANO_WORKSPACE = 2; // REPLACE WITH YOUR ACTUAL WORKSPACE ID
-const XANO_API_BASE = "https://xhib-njau-6vza.d2.dev.xano.io/api:meta"; // REPLACE IF YOUR BASE URL IS DIFFERENT
+const XANO_API_KEY = "metadata_api_key_here"; // REPLACE WITH YOUR ACTUAL API KEY
+const XANO_WORKSPACE = 1; // REPLACE WITH YOUR ACTUAL WORKSPACE ID
+const XANO_API_BASE = "https://your-url.xano.io/api:meta"; // REPLACE IF YOUR BASE URL IS DIFFERENT
 
 // Types
 interface DatabaseRecord {
@@ -370,6 +370,7 @@ server.tool(
 );
 
 // Delete Table Tool
+/*
 server.tool(
   "delete-table",
   "Delete a table from the Xano workspace",
@@ -404,6 +405,7 @@ server.tool(
     }
   }
 );
+*/
 
 // Edit Table Schema Tool
 server.tool(

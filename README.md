@@ -33,15 +33,36 @@ npm install
      ```bash
      cp .env.example .env
      ```
-   - Edit `.env` and set your Xano credentials:
+   - Edit `index.ts` and set your Xano credentials:
      - `XANO_API_KEY`: Your Xano API key
      - `XANO_WORKSPACE`: Your Xano workspace ID
-     - `XANO_API_BASE`: Your Xano instance API URL (e.g., https://your-instance.xano.io/api:your-api-id)
+     - `XANO_API_BASE`: Your Xano instance API URL (e.g., https://your-instance.xano.io/api:meta)
 
 4. Build the project:
 ```bash
 npm run build
 ```
+
+## Usage with Claude Desktop
+
+Follow this guide - https://modelcontextprotocol.io/quickstart/user
+
+Update your config with: 
+
+{
+  "mcpServers": {
+    "xano": {
+      "command": "node",
+      "args": [
+        "/path/to/xano-mcp"
+      ]
+    }
+  }
+} 
+
+
+Replace `/path/to/xano-mcp` with the absolute path to your project directory.
+
 
 ## Usage with Cursor
 
@@ -54,187 +75,97 @@ npm run build
 
 Replace `/path/to/xano-mcp` with the absolute path to your project directory.
 
-## Tool Reference
+Example mac  
+node /Users/your-user/Documents/folder-name/xano-mcp/build/index.js
 
-### list-tables
+If you're in your're inside your directory you can run the comman 'pwd' into your terminal to get the absolute path.
 
-Lists all tables in your Xano workspace with their details.
+## Xano MCP Tools Overview
 
-**Parameters:** None
+This integration provides a comprehensive set of tools for managing your Xano workspace through the Model Context Protocol (MCP). Here's what you can do:
 
-**Returns:**
-- Formatted list of tables with their IDs, descriptions, creation/update times, and tags
+## Database Management
 
-**Example Usage:**
-```
-List all tables in my Xano workspace
-```
+### Tables
+- List all tables in your workspace
+- View detailed table schemas
+- Create new tables with custom schemas
+- Delete existing tables
+- Modify table schemas (add/remove/rename columns)
 
-### get-table-schema
+### Schema Operations
+- Add new columns with various data types
+- Remove columns
+- Rename columns
+- Update entire table schemas
+- Support for complex data types and relationships
 
-Gets the detailed schema for a specific table.
+## API Management
 
-**Parameters:**
-- `table_id` (string, required): ID of the table to retrieve schema from
+### API Groups
+- Create new API groups
+- List all API groups
+- Browse APIs within groups
+- Enable/disable Swagger documentation
+- Manage API group metadata (tags, branches, etc.)
 
-**Returns:**
-- Formatted list of all schema fields with their types, requirements, access levels, and configurations
+### Individual APIs
+- Add new APIs to groups
+- Configure HTTP methods (GET, POST, PUT, DELETE, PATCH, HEAD)
+- Set up API documentation
+- Add metadata (tags, descriptions)
 
-**Example Usage:**
-```
-Get the schema for table with ID "123456"
-```
+## Documentation
+- Generate API Group specifications in both markdown (reduced tokens) and JSO (full) formats
+- View Swagger documentation
+- Access detailed schema information
 
-### add-table
+This toolset enables complete management of your Xano workspace, allowing you to build and maintain your backend infrastructure programmatically through the MCP interface. 
 
-Creates a new table in the Xano database with optional schema configuration.
+## Re-enabling the Delete Table Tool
 
-**Parameters:**
-- `name` (string, required): Name of the new table
-- `description` (string, optional): Description of the table
-- `schema` (array, optional): Array of schema elements with complete configuration
+To re-enable the delete-table functionality in this codebase, follow these step-by-step instructions:
 
-**Schema Element Properties:**
-- `name` (string, required): Name of the schema element
-- `type` (string, required): Type of the schema element (text, int, bool, etc.)
-- `description` (string, optional): Description of the schema element
-- `nullable` (boolean, optional): Whether the field can be null
-- `required` (boolean, optional): Whether the field is required
-- `access` (string, optional): Access level (public, private, internal)
-- `style` (string, optional): Whether the field is a single value or a list
-- `default` (string, optional): Default value for the field
-- `config` (object, optional): Additional configuration for specific field types
-- `children` (array, optional): Nested fields for object types
+1. Open the file `src/index.ts` in your code editor
+2. Locate the commented-out section that starts with:
+   ```typescript
+   // Delete Table Tool
+   /*
+   server.tool(
+   ```
+   and ends with:
+   ```typescript
+   );
+   */
+   ```
 
-**Example Usage:**
-```
-Create a new table named "Customers" with description "Store customer information" and schema with fields for name (text), email (email), and age (int)
-```
+3. To uncomment this section:
+   - Delete the opening `/*` on the line after "Delete Table Tool"
+   - Delete the closing `*/` before "Edit Table Schema Tool"
+   
+   That's it! The delete-table tool will now be active again.   (After running a new build)
 
-### delete-table
-
-Deletes a table from the Xano workspace.
-
-**Parameters:**
-- `table_id` (string, required): ID of the table to delete
-
-**Example Usage:**
-```
-Delete the table with ID "123456"
-```
-
-### edit-table-schema
-
-Comprehensive tool for editing the schema of an existing table - add, remove, rename columns, or update the entire schema in a single operation.
-
-**Parameters:**
-- `table_id` (string, required): ID of the table to edit
-- `operation` (string, required): Type of schema operation to perform
-  - Options: 'update', 'add_column', 'rename_column', 'remove_column'
-
-**Operation-specific parameters:**
-
-For `operation: 'update'`:
-- `schema` (array, required): Full schema specification replacing the existing schema
-
-For `operation: 'add_column'`:
-- `column` (object, required): Column specification with:
-  - `name` (string, required): Name of the column
-  - `type` (string, required): Type of the column
-  - `description` (string, optional): Description of the column
-  - Other properties as needed (nullable, required, access, style, default, config)
-
-For `operation: 'rename_column'`:
-- `rename` (object, required): Rename specification with:
-  - `old_name` (string, required): Current name of the column
-  - `new_name` (string, required): New name for the column
-
-For `operation: 'remove_column'`:
-- `column_name` (string, required): Name of the column to remove
-
-**Example Usages:**
-
-1. Adding a column:
-```
-Edit table schema for table ID "123456" by adding a new text column called "notes" that is nullable
-```
-
-2. Renaming a column:
-```
-Edit table schema for table ID "123456" by renaming column "user_name" to "username"
-```
-
-3. Removing a column:
-```
-Edit table schema for table ID "123456" by removing the column "temporary_field"
-```
-
-4. Updating the entire schema:
-```
-Edit table schema for table ID "123456" by updating the entire schema with new fields for "id", "name", and "email"
-```
-
-## Development
-
-### Project Structure
-
-```
-xano-mcp/
-├── src/
-│   └── index.ts      # Main server implementation
-├── build/            # Compiled JavaScript files
-├── .env.example      # Example environment variables
-├── .env              # Your actual environment variables (git-ignored)
-├── package.json      # Project configuration
-└── tsconfig.json     # TypeScript configuration
-```
-
-### API Configuration
-
-The server is configured to use the Xano API endpoint:
-```
-https://x6if-wu0q-dtak.n7.xano.io/api:hdUmQe32
-```
-
-### Adding New Tools
-
-To add a new tool, use the `server.tool()` method in `src/index.ts`:
+### Example of What the Code Should Look Like After
 
 ```typescript
+// Delete Table Tool
 server.tool(
-  "tool-name",
-  "Tool description",
+  "delete-table",
+  "Delete a table from the Xano workspace",
   {
-    // Zod schema for parameters
-    paramName: z.string().describe("Parameter description")
+    table_id: z.string().describe("ID of the table to delete")
   },
-  async ({ paramName }) => {
-    // Tool implementation
-    return {
-      content: [
-        {
-          type: "text",
-          text: "Response text"
-        }
-      ]
-    };
+  async ({ table_id }) => {
+    // ... rest of the implementation
   }
 );
 ```
 
-## Scripts
+### Verification
+After making these changes:
+1. Save the file
+2. Restart your MCP server
+3. The delete-table tool should now be available in your toolset
 
-- `npm run build`: Compile TypeScript and set executable permissions
-- `npm start`: Run the compiled server
-
-## Debugging
-
-The server outputs debug information to stderr, which can be viewed when running the server directly:
-
-```bash
-node build/index.js
-```
-
-## License
-
-ISC 
+### Safety Note
+The delete-table tool permanently removes tables from your Xano workspace. Make sure you have appropriate backups before using this functionality. 
