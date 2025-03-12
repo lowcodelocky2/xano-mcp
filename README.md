@@ -62,6 +62,7 @@ Update your config with:
 
 Replace `/path/to/xano-mcp` with the absolute path to your project directory.
 
+**This does not work with the claude web app, only via the desktop app - https://claude.ai/download**
 
 ## Usage with Cursor
 
