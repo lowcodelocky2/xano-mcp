@@ -7,6 +7,7 @@ A Model Context Protocol (MCP) server for interacting with Xano's metadata API. 
 - **Manage Tables**: Create, list, and delete tables in your Xano database
 - **Schema Operations**: View and modify table schemas with comprehensive schema editing capabilities
 - **Database Management**: Complete toolset for interacting with your Xano database structure
+- **Swagger Spec**: Extract your API group api details in either JSON or Markdown (reduced token) format
 
 ## Prerequisites
 
