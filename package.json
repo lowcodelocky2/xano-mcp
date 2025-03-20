@@ -7,7 +7,12 @@
   },
   "scripts": {
     "build": "tsc && node -e \"require('fs').chmodSync('build/index.js', '755')\"",
-    "start": "node build/index.js"
+    "start": "node build/index.js",
+    "lint": "eslint --max-warnings=0 --ext .ts src/",
+    "lint:fix": "eslint --fix src/**/*.ts",
+    "format": "prettier --write \"src/**/*.{ts,js,json}\"",
+    "format:check": "prettier --check \"src/**/*.{ts,js,json}\"",
+    "prebuild": "npm run lint:fix && npm run format"
   },
   "keywords": [],
   "author": "",
@@ -15,12 +20,17 @@
   "description": "MCP server for Xano metadata API",
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.5.0",
-    "dotenv": "^16.4.1",
+    "dotenv": "^16.4.7",
     "zod": "^3.0.0"
   },
   "devDependencies": {
     "@types/dotenv": "^8.2.0",
     "@types/node": "^20.0.0",
+    "@typescript-eslint/eslint-plugin": "^6.19.0",
+    "@typescript-eslint/parser": "^6.19.0",
+    "eslint": "^8.56.0",
+    "eslint-config-prettier": "^9.1.0",
+    "prettier": "^3.0.0",
     "typescript": "^5.0.0"
   }
 }
